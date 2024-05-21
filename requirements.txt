@@ -7,3 +7,4 @@ streamlit
 pymongo
 python-dotenv
 langchain-community
+wandb
