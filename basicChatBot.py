@@ -19,7 +19,15 @@ llm = AzureChatOpenAI(
     temperature=1
 )
 
-st.title("My own chatbot")
+st.title("My Demo Chatbot")
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
 if "text_embedding" not in st.session_state:
     st.session_state['text_embedding'] =  AzureOpenAIEmbeddings(
@@ -52,6 +60,7 @@ if "text_embedding" not in st.session_state:
     greetings = '''Hello my name is Alice, and I am Eldon's personal assistant. I am here to help, feel free to ask any questions.
     '''
     st.session_state['conversations'].append(AIMessage(content=greetings))
+    st.session_state.messages.append({"role": "assistant", "content": greetings})
     st.session_state['msgtypes'] = {HumanMessage: "Human", AIMessage:"AI", SystemMessage:"System"}
 
     for conv in st.session_state['conversations']:
@@ -64,11 +73,13 @@ if "text_embedding" not in st.session_state:
 if query:= st.chat_input("Your Message"):
     st.chat_message("Human").markdown(query)
     st.session_state['conversations'].append(HumanMessage(content=query))
+    st.session_state.messages.append({"role": "user", "content": query})
 
     templog = st.session_state['conversations']
     response = st.session_state['llm'].invoke(templog)
     # response = st.session_state['llm'].invoke(st.session_state['conversations'])
     st.chat_message("AI").markdown(response.content)
+    st.session_state.messages.append({"role": "assistant", "content": response.content})
     st.session_state['conversations'].append(response)
 
 
