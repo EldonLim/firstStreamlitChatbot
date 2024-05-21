@@ -21,15 +21,6 @@ llm = AzureChatOpenAI(
 
 st.title("My own chatbot")
 
-def search_chunks(query):
-    search_result = st.session_state['retrieval'].invoke(query)
-    context = []
-    for r in search_result:
-        context.append(r.page_content)
-
-    instruction = "try to understand the userquery and answer based on the context given below:\n"
-    return SystemMessage(content=f"{instruction}'context':{context}, 'userquery':{query}")
-
 if "text_embedding" not in st.session_state:
     st.session_state['text_embedding'] =  AzureOpenAIEmbeddings(
         azure_endpoint=os.environ['AZURE_OPENAI_ENDPOINT'],
@@ -37,8 +28,8 @@ if "text_embedding" not in st.session_state:
         azure_deployment=os.environ["AZURE_TEXT_EMBEDDING"],
         model='text-embedding-ada-002'
     )
-    vectorDB = FAISS.load_local("db/sc1015", st.session_state['text_embedding'] , allow_dangerous_deserialization=True)
-    st.session_state['retrieval'] = vectorDB.as_retriever(search_kwargs={"k": 5})
+    # vectorDB = FAISS.load_local("db/sc1015", st.session_state['text_embedding'] , allow_dangerous_deserialization=True)
+    # st.session_state['retrieval'] = vectorDB.as_retriever(search_kwargs={"k": 5})
 
     st.session_state['llm'] = AzureChatOpenAI(
         openai_api_version=os.environ['AZURE_OPENAI_API_VERSION'],
@@ -48,17 +39,17 @@ if "text_embedding" not in st.session_state:
         temperature=1
     )
 
-    persona = "You are a teaching assistant at for the course SC1015 at NTU."
-    task ="your task is to answer student query about the data science and ai course."
-    context = "the context will be provided based on the course information and FAQ along with the user query"
-    condition = "If user ask any query beyond data science and ai, tell the user you are not an expert of the topic the user is asking and say sorry. If you are unsure about certain query, say sorry and advise the user to contact the instructor at instructor@ntu.edu.sg"
+    persona = "You are Eldon's personal assistant."
+    task ="your task is to answer query."
+    context = ""
+    condition = "If user ask any query beyond your capabilities, tell the user you are not an expert of the topic the user is asking and say sorry. If you are unsure about certain query, say sorry and advise the user to contact the Eldon at eldo0001@e.ntu.edu.sg"
     ### any other things to add on
 
     ## Constructing initial system message
     sysmsg = f"{persona} {task} {context} {condition}"
     st.session_state['conversations'] = [SystemMessage(content=sysmsg)]
 
-    greetings = '''Hello my name is Alice, and I am a Automated Teaching Assistant for SC1015 - Data Science & AI. I am here to help, feel free to ask any questions.
+    greetings = '''Hello my name is Alice, and I am Eldon's personal assistant. I am here to help, feel free to ask any questions.
     '''
     st.session_state['conversations'].append(AIMessage(content=greetings))
     st.session_state['msgtypes'] = {HumanMessage: "Human", AIMessage:"AI", SystemMessage:"System"}
@@ -74,9 +65,7 @@ if query:= st.chat_input("Your Message"):
     st.chat_message("Human").markdown(query)
     st.session_state['conversations'].append(HumanMessage(content=query))
 
-
-    context = search_chunks(query)
-    templog = st.session_state['conversations'] + [context]
+    templog = st.session_state['conversations']
     response = st.session_state['llm'].invoke(templog)
     # response = st.session_state['llm'].invoke(st.session_state['conversations'])
     st.chat_message("AI").markdown(response.content)
