@@ -1,2 +1,2 @@
-AI ChatBot Development with Streamlit  
+# AI ChatBot Development with Streamlit  
 In this project, I developed an AI ChatBot using the Streamlit framework and OpenAI's GPT-3.5 Turbo model. The chatbot leverages advanced natural language processing capabilities to provide intelligent and context-aware responses. By integrating GPT-3.5 Turbo, I ensured that the chatbot can handle a wide range of queries and conversations, making it versatile and highly responsive. This project showcases my ability to create sophisticated AI solutions that can enhance user interactions and provide valuable support.
